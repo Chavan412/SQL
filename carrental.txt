@@ -1,0 +1,438 @@
+mysql> CREATE DATABASE IF NOT EXISTS car_rental_db;
+Query OK, 1 row affected (0.05 sec)
+
+mysql> USE car_rental_db;
+Database changed
+mysql> 
+mysql> CREATE TABLE Branches (
+    ->     branch_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     branch_name VARCHAR(100),
+    ->     city VARCHAR(50),
+    ->     address TEXT,
+    ->     phone VARCHAR(15)
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> 
+mysql> CREATE TABLE Car_Models (
+    ->     model_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     brand VARCHAR(50),
+    ->     model_name VARCHAR(50),
+    ->     seats INT,
+    ->     fuel_type ENUM('Petrol', 'Diesel', 'Electric', 'Hybrid')
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> CREATE TABLE Cars (
+    ->     car_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     model_id INT,
+    ->     branch_id INT,
+    ->     license_plate VARCHAR(20) UNIQUE,
+    ->     daily_rate DECIMAL(8,2),
+    ->     status ENUM('Available', 'Rented', 'Maintenance') DEFAULT 'Available',
+    ->     FOREIGN KEY (model_id) REFERENCES Car_Models(model_id),
+    ->     FOREIGN KEY (branch_id) REFERENCES Branches(branch_id)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> CREATE TABLE Customers (
+    ->     customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     name VARCHAR(100),
+    ->     license_number VARCHAR(30) UNIQUE,
+    ->     phone VARCHAR(15),
+    ->     email VARCHAR(100)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> CREATE TABLE Rentals (
+    ->     rental_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     customer_id INT,
+    ->     car_id INT,
+    ->     pickup_branch_id INT,
+    ->     return_branch_id INT,
+    ->     start_date DATE,
+    ->     end_date DATE,
+    ->     total_cost DECIMAL(10,2),
+    ->     FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
+    ->     FOREIGN KEY (car_id) REFERENCES Cars(car_id),
+    ->     FOREIGN KEY (pickup_branch_id) REFERENCES Branches(branch_id),
+    ->     FOREIGN KEY (return_branch_id) REFERENCES Branches(branch_id)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> -- Insert into Branches
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Branches (branch_name, city, address, phone) VALUES
+    -> ('Downtown Rentals', 'New York', '12 Main St, NY', '9876543210'),
+    -> ('City Drive', 'Los Angeles', '45 Sunset Blvd, LA', '9876543211'),
+    -> ('Metro Cars', 'Chicago', '78 Lake Shore Dr, Chicago', '9876543212'),
+    -> ('FastTrack Rentals', 'Houston', '90 Elm St, Houston', '9876543213'),
+    -> ('Prime Wheels', 'Phoenix', '22 Desert Rd, Phoenix', '9876543214'),
+    -> ('Urban Ride', 'Philadelphia', '11 Market St, Philadelphia', '9876543215'),
+    -> ('Elite Cars', 'San Antonio', '55 River Walk, San Antonio', '9876543216'),
+    -> ('Skyline Rentals', 'San Diego', '88 Ocean Ave, San Diego', '9876543217');
+Query OK, 8 rows affected (0.00 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Insert into Car_Models
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Car_Models (brand, model_name, seats, fuel_type) VALUES
+    -> ('Toyota', 'Corolla', 5, 'Petrol'),
+    -> ('Honda', 'Civic', 5, 'Diesel'),
+    -> ('Tesla', 'Model 3', 5, 'Electric'),
+    -> ('Hyundai', 'Elantra', 5, 'Hybrid'),
+    -> ('Ford', 'Focus', 5, 'Petrol'),
+    -> ('BMW', 'X5', 7, 'Diesel'),
+    -> ('Audi', 'A4', 5, 'Hybrid'),
+    -> ('Kia', 'Seltos', 5, 'Petrol');
+Query OK, 8 rows affected (0.00 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Insert into Cars
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Cars (model_id, branch_id, license_plate, daily_rate, status) VALUES
+    -> (1, 1, 'NYC1001', 55.00, 'Available'),
+    -> (2, 2, 'LA2002', 60.00, 'Rented'),
+    -> (3, 3, 'CHI3003', 120.00, 'Available'),
+    -> (4, 4, 'HOU4004', 75.00, 'Maintenance'),
+    -> (5, 5, 'PHX5005', 58.00, 'Available'),
+    -> (6, 6, 'PHI6006', 140.00, 'Rented'),
+    -> (7, 7, 'SA7007', 95.00, 'Available'),
+    -> (8, 8, 'SD8008', 65.00, 'Available');
+Query OK, 8 rows affected (0.00 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Insert into Customers
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Customers (name, license_number, phone, email) VALUES
+    -> ('John Smith', 'DL10001', '9123456780', 'john@example.com'),
+    -> ('Emma Johnson', 'DL10002', '9123456781', 'emma@example.com'),
+    -> ('Michael Brown', 'DL10003', '9123456782', 'michael@example.com'),
+    -> ('Sophia Davis', 'DL10004', '9123456783', 'sophia@example.com'),
+    -> ('William Miller', 'DL10005', '9123456784', 'william@example.com'),
+    -> ('Olivia Wilson', 'DL10006', '9123456785', 'olivia@example.com'),
+    -> ('James Moore', 'DL10007', '9123456786', 'james@example.com'),
+    -> ('Ava Taylor', 'DL10008', '9123456787', 'ava@example.com');
+Query OK, 8 rows affected (0.00 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Insert into Rentals
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Rentals (
+    ->     customer_id, car_id, pickup_branch_id, return_branch_id,
+    ->     start_date, end_date, total_cost
+    -> ) VALUES
+    -> (1, 1, 1, 2, '2026-05-01', '2026-05-05', 220.00),
+    -> (2, 2, 2, 2, '2026-05-03', '2026-05-06', 180.00),
+    -> (3, 3, 3, 4, '2026-05-04', '2026-05-08', 480.00),
+    -> (4, 4, 4, 5, '2026-05-06', '2026-05-10', 300.00),
+    -> (5, 5, 5, 5, '2026-05-07', '2026-05-09', 116.00),
+    -> (6, 6, 6, 7, '2026-05-08', '2026-05-12', 560.00),
+    -> (7, 7, 7, 8, '2026-05-10', '2026-05-14', 380.00),
+    -> (8, 8, 8, 1, '2026-05-11', '2026-05-15', 260.00);
+Query OK, 8 rows affected (0.00 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- VERIFYING TABLES
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from branches;
++-----------+-------------------+--------------+----------------------------+------------+
+| branch_id | branch_name       | city         | address                    | phone      |
++-----------+-------------------+--------------+----------------------------+------------+
+|         1 | Downtown Rentals  | New York     | 12 Main St, NY             | 9876543210 |
+|         2 | City Drive        | Los Angeles  | 45 Sunset Blvd, LA         | 9876543211 |
+|         3 | Metro Cars        | Chicago      | 78 Lake Shore Dr, Chicago  | 9876543212 |
+|         4 | FastTrack Rentals | Houston      | 90 Elm St, Houston         | 9876543213 |
+|         5 | Prime Wheels      | Phoenix      | 22 Desert Rd, Phoenix      | 9876543214 |
+|         6 | Urban Ride        | Philadelphia | 11 Market St, Philadelphia | 9876543215 |
+|         7 | Elite Cars        | San Antonio  | 55 River Walk, San Antonio | 9876543216 |
+|         8 | Skyline Rentals   | San Diego    | 88 Ocean Ave, San Diego    | 9876543217 |
++-----------+-------------------+--------------+----------------------------+------------+
+8 rows in set (0.00 sec)
+
+mysql> select * from car_models;
++----------+---------+------------+-------+-----------+
+| model_id | brand   | model_name | seats | fuel_type |
++----------+---------+------------+-------+-----------+
+|        1 | Toyota  | Corolla    |     5 | Petrol    |
+|        2 | Honda   | Civic      |     5 | Diesel    |
+|        3 | Tesla   | Model 3    |     5 | Electric  |
+|        4 | Hyundai | Elantra    |     5 | Hybrid    |
+|        5 | Ford    | Focus      |     5 | Petrol    |
+|        6 | BMW     | X5         |     7 | Diesel    |
+|        7 | Audi    | A4         |     5 | Hybrid    |
+|        8 | Kia     | Seltos     |     5 | Petrol    |
++----------+---------+------------+-------+-----------+
+8 rows in set (0.00 sec)
+
+mysql> select * from cars;
++--------+----------+-----------+---------------+------------+-------------+
+| car_id | model_id | branch_id | license_plate | daily_rate | status      |
++--------+----------+-----------+---------------+------------+-------------+
+|      1 |        1 |         1 | NYC1001       |      55.00 | Available   |
+|      2 |        2 |         2 | LA2002        |      60.00 | Rented      |
+|      3 |        3 |         3 | CHI3003       |     120.00 | Available   |
+|      4 |        4 |         4 | HOU4004       |      75.00 | Maintenance |
+|      5 |        5 |         5 | PHX5005       |      58.00 | Available   |
+|      6 |        6 |         6 | PHI6006       |     140.00 | Rented      |
+|      7 |        7 |         7 | SA7007        |      95.00 | Available   |
+|      8 |        8 |         8 | SD8008        |      65.00 | Available   |
++--------+----------+-----------+---------------+------------+-------------+
+8 rows in set (0.00 sec)
+
+mysql> select * from customers; 
++-------------+----------------+----------------+------------+---------------------+
+| customer_id | name           | license_number | phone      | email               |
++-------------+----------------+----------------+------------+---------------------+
+|           1 | John Smith     | DL10001        | 9123456780 | john@example.com    |
+|           2 | Emma Johnson   | DL10002        | 9123456781 | emma@example.com    |
+|           3 | Michael Brown  | DL10003        | 9123456782 | michael@example.com |
+|           4 | Sophia Davis   | DL10004        | 9123456783 | sophia@example.com  |
+|           5 | William Miller | DL10005        | 9123456784 | william@example.com |
+|           6 | Olivia Wilson  | DL10006        | 9123456785 | olivia@example.com  |
+|           7 | James Moore    | DL10007        | 9123456786 | james@example.com   |
+|           8 | Ava Taylor     | DL10008        | 9123456787 | ava@example.com     |
++-------------+----------------+----------------+------------+---------------------+
+8 rows in set (0.00 sec)
+
+mysql> select * from Rentals;
++-----------+-------------+--------+------------------+------------------+------------+------------+------------+
+| rental_id | customer_id | car_id | pickup_branch_id | return_branch_id | start_date | end_date   | total_cost |
++-----------+-------------+--------+------------------+------------------+------------+------------+------------+
+|         1 |           1 |      1 |                1 |                2 | 2026-05-01 | 2026-05-05 |     220.00 |
+|         2 |           2 |      2 |                2 |                2 | 2026-05-03 | 2026-05-06 |     180.00 |
+|         3 |           3 |      3 |                3 |                4 | 2026-05-04 | 2026-05-08 |     480.00 |
+|         4 |           4 |      4 |                4 |                5 | 2026-05-06 | 2026-05-10 |     300.00 |
+|         5 |           5 |      5 |                5 |                5 | 2026-05-07 | 2026-05-09 |     116.00 |
+|         6 |           6 |      6 |                6 |                7 | 2026-05-08 | 2026-05-12 |     560.00 |
+|         7 |           7 |      7 |                7 |                8 | 2026-05-10 | 2026-05-14 |     380.00 |
+|         8 |           8 |      8 |                8 |                1 | 2026-05-11 | 2026-05-15 |     260.00 |
++-----------+-------------+--------+------------------+------------------+------------+------------+------------+
+8 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 1.Increase daily rate by 10%
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select car_id, daily_rate,daily_rate + (daily_rate * 0.10) as increased_rate
+    -> from Cars;
++--------+------------+----------------+
+| car_id | daily_rate | increased_rate |
++--------+------------+----------------+
+|      1 |      55.00 |        60.5000 |
+|      2 |      60.00 |        66.0000 |
+|      3 |     120.00 |       132.0000 |
+|      4 |      75.00 |        82.5000 |
+|      5 |      58.00 |        63.8000 |
+|      6 |     140.00 |       154.0000 |
+|      7 |      95.00 |       104.5000 |
+|      8 |      65.00 |        71.5000 |
++--------+------------+----------------+
+8 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 2.Customers whose name is not 'John Smith'
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select *
+    -> from Customers
+    -> where name != 'John Smith';
++-------------+----------------+----------------+------------+---------------------+
+| customer_id | name           | license_number | phone      | email               |
++-------------+----------------+----------------+------------+---------------------+
+|           2 | Emma Johnson   | DL10002        | 9123456781 | emma@example.com    |
+|           3 | Michael Brown  | DL10003        | 9123456782 | michael@example.com |
+|           4 | Sophia Davis   | DL10004        | 9123456783 | sophia@example.com  |
+|           5 | William Miller | DL10005        | 9123456784 | william@example.com |
+|           6 | Olivia Wilson  | DL10006        | 9123456785 | olivia@example.com  |
+|           7 | James Moore    | DL10007        | 9123456786 | james@example.com   |
+|           8 | Ava Taylor     | DL10008        | 9123456787 | ava@example.com     |
++-------------+----------------+----------------+------------+---------------------+
+7 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 3.Rentals costing less than or equal to 300
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from Rentals
+    -> where total_cost <= 300;
++-----------+-------------+--------+------------------+------------------+------------+------------+------------+
+| rental_id | customer_id | car_id | pickup_branch_id | return_branch_id | start_date | end_date   | total_cost |
++-----------+-------------+--------+------------------+------------------+------------+------------+------------+
+|         1 |           1 |      1 |                1 |                2 | 2026-05-01 | 2026-05-05 |     220.00 |
+|         2 |           2 |      2 |                2 |                2 | 2026-05-03 | 2026-05-06 |     180.00 |
+|         4 |           4 |      4 |                4 |                5 | 2026-05-06 | 2026-05-10 |     300.00 |
+|         5 |           5 |      5 |                5 |                5 | 2026-05-07 | 2026-05-09 |     116.00 |
+|         8 |           8 |      8 |                8 |                1 | 2026-05-11 | 2026-05-15 |     260.00 |
++-----------+-------------+--------+------------------+------------------+------------+------------+------------+
+5 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 4.Car models with seating capacity greater than or equal to 5
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT *
+    -> FROM Car_Models
+    -> WHERE seats >= 5;
++----------+---------+------------+-------+-----------+
+| model_id | brand   | model_name | seats | fuel_type |
++----------+---------+------------+-------+-----------+
+|        1 | Toyota  | Corolla    |     5 | Petrol    |
+|        2 | Honda   | Civic      |     5 | Diesel    |
+|        3 | Tesla   | Model 3    |     5 | Electric  |
+|        4 | Hyundai | Elantra    |     5 | Hybrid    |
+|        5 | Ford    | Focus      |     5 | Petrol    |
+|        6 | BMW     | X5         |     7 | Diesel    |
+|        7 | Audi    | A4         |     5 | Hybrid    |
+|        8 | Kia     | Seltos     |     5 | Petrol    |
++----------+---------+------------+-------+-----------+
+8 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 5.Count cars available in each status
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT status, COUNT(*) AS total_cars
+    -> FROM Cars
+    -> GROUP BY status;
++-------------+------------+
+| status      | total_cars |
++-------------+------------+
+| Available   |          5 |
+| Rented      |          2 |
+| Maintenance |          1 |
++-------------+------------+
+3 rows in set (0.01 sec)
+
+mysql> 
+mysql> -- 6.Find total rental revenue by customer
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT customer_id, SUM(total_cost) AS total_spent
+    -> FROM Rentals
+    -> GROUP BY customer_id;
++-------------+-------------+
+| customer_id | total_spent |
++-------------+-------------+
+|           1 |      220.00 |
+|           2 |      180.00 |
+|           3 |      480.00 |
+|           4 |      300.00 |
+|           5 |      116.00 |
+|           6 |      560.00 |
+|           7 |      380.00 |
+|           8 |      260.00 |
++-------------+-------------+
+8 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 7.Show cities having more than 1 branch
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT city, COUNT(*) AS total_branches
+    -> FROM Branches
+    -> GROUP BY city
+    -> HAVING COUNT(*) > 1;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 8.Average seats by fuel type
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT fuel_type,AVG(seats) AS average_seats
+    -> FROM Car_Models
+    -> GROUP BY fuel_type;
++-----------+---------------+
+| fuel_type | average_seats |
++-----------+---------------+
+| Petrol    |        5.0000 |
+| Diesel    |        6.0000 |
+| Electric  |        5.0000 |
+| Hybrid    |        5.0000 |
++-----------+---------------+
+4 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 9.Show customer rental details
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT c.name, r.rental_id, r.start_date, r.end_date, r.total_cost
+    -> FROM Customers c
+    -> INNER JOIN Rentals r
+    -> ON c.customer_id = r.customer_id;
++----------------+-----------+------------+------------+------------+
+| name           | rental_id | start_date | end_date   | total_cost |
++----------------+-----------+------------+------------+------------+
+| John Smith     |         1 | 2026-05-01 | 2026-05-05 |     220.00 |
+| Emma Johnson   |         2 | 2026-05-03 | 2026-05-06 |     180.00 |
+| Michael Brown  |         3 | 2026-05-04 | 2026-05-08 |     480.00 |
+| Sophia Davis   |         4 | 2026-05-06 | 2026-05-10 |     300.00 |
+| William Miller |         5 | 2026-05-07 | 2026-05-09 |     116.00 |
+| Olivia Wilson  |         6 | 2026-05-08 | 2026-05-12 |     560.00 |
+| James Moore    |         7 | 2026-05-10 | 2026-05-14 |     380.00 |
+| Ava Taylor     |         8 | 2026-05-11 | 2026-05-15 |     260.00 |
++----------------+-----------+------------+------------+------------+
+8 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 10.Find cars with highest daily rate
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from Cars
+    -> where daily_rate = (select max(daily_rate)from Cars);
++--------+----------+-----------+---------------+------------+--------+
+| car_id | model_id | branch_id | license_plate | daily_rate | status |
++--------+----------+-----------+---------------+------------+--------+
+|      6 |        6 |         6 | PHI6006       |     140.00 | Rented |
++--------+----------+-----------+---------------+------------+--------+
+1 row in set (0.00 sec)
+
+mysql> 
+mysql> -- 11.Find branches having available cars
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from Branches
+    -> where branch_id in (select branch_id from Cars where status = 'Available');
++-----------+------------------+-------------+----------------------------+------------+
+| branch_id | branch_name      | city        | address                    | phone      |
++-----------+------------------+-------------+----------------------------+------------+
+|         1 | Downtown Rentals | New York    | 12 Main St, NY             | 9876543210 |
+|         3 | Metro Cars       | Chicago     | 78 Lake Shore Dr, Chicago  | 9876543212 |
+|         5 | Prime Wheels     | Phoenix     | 22 Desert Rd, Phoenix      | 9876543214 |
+|         7 | Elite Cars       | San Antonio | 55 River Walk, San Antonio | 9876543216 |
+|         8 | Skyline Rentals  | San Diego   | 88 Ocean Ave, San Diego    | 9876543217 |
++-----------+------------------+-------------+----------------------------+------------+
+5 rows in set (0.00 sec)
+
+mysql> 
+mysql> -- 12.Car details with above-average daily rate
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select ca.car_id, cm.brand, cm.model_name, ca.daily_rate
+    -> from Cars ca
+    -> join Car_Models cm on ca.model_id = cm.model_id
+    -> where ca.daily_rate > (select avg(daily_rate)from Cars);
++--------+-------+------------+------------+
+| car_id | brand | model_name | daily_rate |
++--------+-------+------------+------------+
+|      3 | Tesla | Model 3    |     120.00 |
+|      6 | BMW   | X5         |     140.00 |
+|      7 | Audi  | A4         |      95.00 |
++--------+-------+------------+------------+
+3 rows in set (0.00 sec)
+
